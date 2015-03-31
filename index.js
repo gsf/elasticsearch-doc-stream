@@ -37,7 +37,7 @@ DocStream.prototype._scroll = function () {
     res.on('data', function (chunk) {data += chunk});
     res.on('end', function () {
       var result = JSON.parse(data);
-      if (!result.hits.hits.length) self.push(null);
+      if (!result.hits.hits.length) return self.push(null);
       result.hits.hits.forEach(function (doc) {
         self.push(doc);
       });
