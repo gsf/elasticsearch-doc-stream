@@ -1,6 +1,6 @@
 {
   "name": "elasticsearch-doc-stream",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "read stream of elasticsearch documents",
   "main": "index.js",
   "repository": "git@github.com:gsf/elasticsearch-doc-stream.git",
