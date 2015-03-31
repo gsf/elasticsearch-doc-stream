@@ -28,6 +28,7 @@ function DocStream (opt) {
   self._scrollOpt.method = 'POST';
 
   self._requestSent = false;
+  self._stopped = false;
 }
 
 DocStream.prototype._scroll = function () {
@@ -38,10 +39,12 @@ DocStream.prototype._scroll = function () {
     res.on('end', function () {
       var result = JSON.parse(data);
       if (!result.hits.hits.length) return self.push(null);
+      var pushMore = true;
       result.hits.hits.forEach(function (doc) {
-        self.push(doc);
+        pushMore = self.push(doc);
       });
-      self._scroll();
+      if (pushMore) return self._scroll();
+      self._stopped = true;
     });
   }).on('error', function (e) {
     self.emit('error', e);
@@ -50,6 +53,10 @@ DocStream.prototype._scroll = function () {
 
 DocStream.prototype._read = function () {
   var self = this;
+  if (self._stopped) {
+    self._stopped = false;
+    return self.scroll();
+  }
   if (self._requestSent) return;
   http.request(self._initOpt, function (res) {
     self._requestSent = true;
