@@ -14,25 +14,25 @@ function DocStream (opt) {
   stream.Readable.call(self, opt);
   self._search = opt.search || {query: {match_all: {}}};
 
-  self._url = url.parse(opt.url);
-  self._scrollUrl = url.parse(opt.url);
+  self._initOpt = url.parse(opt.url);
+  self._scrollOpt = url.parse(opt.url);
   self._scrollId;
 
-  self._url.path = self._url.path +
+  self._initOpt.path = self._initOpt.path +
     '/_search?search_type=scan&scroll=10m&size=50';
-  self._url.method = 'POST';
-  self._scrollUrl.path = '/_search/scroll?scroll=10m';
-  self._scrollUrl.headers = {
+  self._initOpt.method = 'POST';
+  self._scrollOpt.path = '/_search/scroll?scroll=10m';
+  self._scrollOpt.headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
   };
-  self._scrollUrl.method = 'POST';
+  self._scrollOpt.method = 'POST';
 
   self._requestSent = false;
 }
 
 DocStream.prototype._scroll = function () {
   var self = this;
-  http.request(self._scrollUrl, function (res) {
+  http.request(self._scrollOpt, function (res) {
     var data = '';
     res.on('data', function (chunk) {data += chunk});
     res.on('end', function () {
@@ -51,7 +51,7 @@ DocStream.prototype._scroll = function () {
 DocStream.prototype._read = function () {
   var self = this;
   if (self._requestSent) return;
-  http.request(self._url, function (res) {
+  http.request(self._initOpt, function (res) {
     self._requestSent = true;
     var data = '';
     res.on('data', function (chunk) {data += chunk});
@@ -59,7 +59,7 @@ DocStream.prototype._read = function () {
       var result = JSON.parse(data);
       if (result.error) return self.emit('error', new Error(result.error));
       self._scrollId = result._scroll_id;
-      self._scrollUrl.headers['Content-Length'] = Buffer.byteLength(self._scrollId);
+      self._scrollOpt.headers['Content-Length'] = Buffer.byteLength(self._scrollId);
       self._scroll();
     });
   }).on('error', function (e) {
