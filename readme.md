@@ -31,6 +31,5 @@ d.on('error', function (err) {
 
 d.on('end', function () {
   console.log(users);
-  process.exit();
 });
 ```
