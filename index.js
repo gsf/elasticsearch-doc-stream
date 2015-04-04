@@ -10,8 +10,10 @@ function DocStream (opt) {
     return new DocStream(opt);
   }
   var self = this;
+
   opt.objectMode = true;
   stream.Readable.call(self, opt);
+
   self._search = opt.search || {query: {match_all: {}}};
 
   self._initOpt = url.parse(opt.url);
@@ -19,9 +21,9 @@ function DocStream (opt) {
   self._scrollId;
 
   self._initOpt.path = self._initOpt.path +
-    '/_search?search_type=scan&scroll=10m&size=50';
+    '/_search?search_type=scan&scroll=1m&size=50';
   self._initOpt.method = 'POST';
-  self._scrollOpt.path = '/_search/scroll?scroll=10m';
+  self._scrollOpt.path = '/_search/scroll?scroll=1m';
   self._scrollOpt.headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
   };
